@@ -1,9 +1,9 @@
 export const site = {
-  author: 'Anonymous',
+  author: 'Byron',
   avatar: '/avatar.jpg', // url or path (relative to /public)
-  email: 'foo@bar.baz',
-  title: 'Astro Starter',
-  description: 'Astro Starter Description',
+  email: 'byronogis@outlook.com',
+  title: `Byron's blog`,
+  description: `Byron's blog`,
   navigation: [
     { id: 'home', title: 'Home', path: '/', icon: 'home' },
     { id: 'post', title: 'Post', path: '/post/', icon: 'post' },
