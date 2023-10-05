@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content'
+import ListLayout from '~/layouts/List.astro'
+import PostCard from '~/components/PostCard.astro'
+
+export async function getStaticPaths() {
+  const postEntries = await getCollection('blog')
+
+  const tags = postEntries.reduce((acc, entry) => [...new Set([...acc, ...(entry.data.tags || [])])], [])
+
+  return tags.map(tag => ({
+    params: { tag },
+    props: {
+      entries: postEntries.filter(entry => entry.data.tags?.includes(tag)),
+    },
+  }))
+}
+
+const { entries } = Astro.props
+---
+
+<ListLayout>
+  {entries.map(entry => (
+    <PostCard entry={entry} />
+  ))}
+</ListLayout>

@@ -1,0 +1,56 @@
+---
+import PostHead from '~/components/PostHead.astro'
+import DefaultLayout from '~/layouts/Default.astro'
+import PostTOC from '~/components/PostTOC.astro'
+
+let data
+let render
+let headings
+let Content
+
+if (Astro.props.frontmatter) { // used in md
+  ;({ frontmatter: data, headings } = Astro.props)
+}
+else {
+  ;({ data, render } = Astro.props)
+
+  ;({ Content, headings } = await render())
+}
+---
+
+<DefaultLayout>
+  <PostHead slot="head" {...data} />
+
+  <div
+    class:list={[
+      'relative',
+      'flex flex-row',
+      'layout_post',
+    ]}
+  >
+    <article class:list={[
+      'markdown', // unocss typography
+      'mx-auto',
+    ]}>
+      <slot>
+        {Content ? <Content /> : null}
+      </slot>
+    </article>
+
+    <aside class:list={[
+      'fixed z-100 bottom-0 w-100vw max-h-60vh overflow-auto translate-y-100% transition-transform bg-strong text-text shadow-md',
+      'h-60vh p-4',
+      'lg:(sticky top-0 w-20vw h-100vh max-h-100vh translate-y-0 bg-transparent text-text:70 shadow-none)',
+      'layout_post__toc',
+    ]}>
+      <PostTOC
+        range={[2, 4]}
+        number={true}
+        line={true}
+        key="post-aside"
+        headings={headings.map(heading => ({ ...heading, title: heading.text, url: `#${heading.slug}` }))}
+      />
+    </aside>
+
+  </div>
+</DefaultLayout>

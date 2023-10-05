@@ -1,0 +1,128 @@
+---
+const {
+  headings,
+  range = [1, 6],
+  number = false,
+  line = false,
+  key,
+} = Astro.props
+
+const toc = normalizeHeadingLevels(headings.filter(i => range[0] <= i.depth && i.depth <= range[1]))
+
+function toNested(headings) {
+  if (headings.length <= 1) {
+    return headings
+  }
+
+  const indexList = headings.reduce((acc, val, idx) => [...acc, val.depth === headings[0].depth && idx], []).filter(Boolean)
+  indexList.unshift(0)
+
+  indexList.forEach((val, idx) => {
+    headings[val].children = headings.slice(val + 1, indexList[idx + 1])
+  })
+
+  return headings
+    .filter((_val, idx) => indexList.includes(idx))
+    .map(val => ({
+      ...val,
+      children: val.children && toNested(val.children),
+    }))
+}
+
+function toNumber(nestedHeading, pNumber = '') {
+  return nestedHeading.map((val, idx) => ({
+    ...val,
+    number: `${pNumber}${idx + 1}.`,
+    children: val.children && toNumber(val.children, `${pNumber}${idx + 1}.`),
+  }))
+}
+
+function normalizeHeadingLevels(headings) {
+  if (headings.length === 0) {
+    return headings
+  }
+
+  headings = toNested(headings)
+
+  number && (headings = toNumber(headings))
+
+  return headings
+}
+
+---
+
+{toc.map(i => (
+  <details
+    data-key={key}
+    open
+    style={{
+      backgroundImage: line && (i.depth === range[0] ? 'none' : 'repeating-linear-gradient(currentColor 0 4px,transparent 0px 8px)'),
+      backgroundPositionX: `${(i.depth - range[0]) * 2 - 1.5}em`,
+    }}
+    class:list={[
+      `[&_>summary:not(:only-child)_>div]:i-ic:baseline-arrow-right`,
+      `[&_>summary:not(:only-child)_>div]:open:i-ic:baseline-arrow-drop-down`,
+      `[&_>summary:only-child_>div]:i-ic:outline-circle`,
+      `[&_>summary:only-child_>div]:scale-50`,
+      // 'bg-gradient-to-r from-text to-text ',
+      'bg-left-top bg-[length:1px_100%] bg-no-repeat',
+      '![&:only-child]:bg-none',
+      '![&:only-child_>summary]:bg-none',
+      '[&:last-child]:bg-[length:1px_0.8em]',
+    ]}
+  >
+    <summary
+      style={{
+        paddingLeft: `${(i.depth - range[0]) * 2}em`,
+        backgroundImage: line && 'repeating-linear-gradient(90deg, currentColor 0 4px,transparent 0px 8px)',
+        backgroundPositionX: `${(i.depth - range[0]) * 2 - 1.5}em`,
+      }}
+      class:list={[
+        'grid grid-cols-[1em_auto_1fr] items-center gap-2 cursor-pointer',
+        // 'bg-gradient-to-r from-text to-text',
+        'bg-left bg-[length:1.5em_1px] bg-no-repeat',
+        'site-opacity',
+        'md:(hover:opacity-100)',
+        '[&.active]:underline [&.active]:decoration-wavy',
+      ]}
+    >
+      <div class:list={[
+        'text-4',
+      ]}></div>
+      <span>{i.number}</span>
+      <a class="line-clamp-1" href={i.url} title={i.title}>{i.title}</a>
+    </summary>
+    {i.children?.map(j => (
+        <Astro.self range={range} number={false} line={line} headings={[j]} />
+    ))}
+  </details>
+))}
+
+<script define:vars={{ key }}>
+if (!key) return
+
+const tocItems = document.querySelectorAll(`[data-key=${key}] summary`);
+const tocItemsMap = new Map();
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocItemsMap.forEach(item => item.classList.remove('active'));
+      tocItemsMap.get(entry.target).classList.add('active');
+    }
+  });
+}, {
+  root: null,
+  threshold: 0.5,
+});
+
+tocItems.forEach(item => {
+  const targetId = item.querySelector('a')?.getAttribute('href')?.slice(1);
+  const targetElement = document.getElementById(targetId);
+
+  if (targetElement) {
+    observer.observe(targetElement);
+    tocItemsMap.set(targetElement, item);
+  }
+});
+</script>

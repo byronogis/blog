@@ -1,0 +1,89 @@
+---
+import ThemeSwitchButton from '~/components/ThemeSwitchButton.astro'
+import { site } from '~/setting'
+import { getPath } from '~/utils/path'
+
+const { class: className } = Astro.props
+---
+
+<aside class:list={[
+  className,
+  'component_control-side',
+  'fixed bottom-8 right-8 grid grid-cols-1 gap-y-2 text-8',
+]}>
+  <a href={getPath('about')} class:list={[
+    'w-8',
+    'md:(hidden)',
+  ]}><img src={site.avatar} alt="avatar" class="w-full rounded-10%"></a>
+
+  <button class:list={[ // home
+    site.iconMap.home,
+    'component_control-side_home__button',
+    'site-opacity',
+    'md:(hidden)',
+  ]}/>
+
+  <div class:list={[
+    'component_control-theme-switch__button',
+    'site-opacity',
+    'md:(hidden)',
+  ]}>
+    <ThemeSwitchButton></ThemeSwitchButton>
+  </div>
+
+  <button class:list={[ // post toc
+    site.iconMap.toc,
+    'component_control-side_post-toc__button',
+    'site-opacity',
+    'md:(hover:opacity-100)',
+    'lg:(hidden)',
+  ]}/>
+
+  <button class:list={[ // site side
+    site.iconMap.menu,
+    'component_control-side_site-side__button',
+    'site-opacity',
+    'md:(hidden)',
+  ]}/>
+
+</aside>
+
+<script>
+  import { goPath } from '~/utils/path'
+
+  const postToc = document.querySelector('.layout_post__toc')
+  const siteSide = document.querySelector('.component_site-side')
+
+  const controlSide = document.querySelector('.component_control-side')
+  controlSide?.addEventListener('click', ({target}) => {
+    let height
+    let isExpanded
+
+    if (target?.classList.contains('component_control-side_home__button')) { // home
+      goPath('home')
+      return
+    } else if (target?.classList.contains('component_control-side_post-toc__button')) { // post toc
+      if(!postToc) return
+      siteSide?.classList.add('translate-y-100%')
+      height = postToc.getBoundingClientRect().height
+      isExpanded = !postToc.classList.toggle('translate-y-100%')
+    } else if (target?.classList.contains('component_control-side_site-side__button')) { // site side
+      if(!siteSide) return
+      postToc?.classList.add('translate-y-100%')
+      height = siteSide.getBoundingClientRect().height
+      isExpanded = !siteSide.classList.toggle('translate-y-100%')
+    } else {
+      return
+    }
+
+    if (isExpanded) {
+      controlSide.style.bottom = `calc(2rem + ${height}px)`
+    } else {
+      controlSide.style.bottom = `2rem`
+    }
+  })
+
+  const tocButton = document.querySelector('.component_control-side_post-toc__button')
+  postToc || tocButton && (tocButton.style.display = 'none')
+
+</script>

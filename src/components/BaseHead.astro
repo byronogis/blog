@@ -1,0 +1,37 @@
+---
+import { SEO } from 'astro-seo'
+import { ThemeSwitch } from 'astro-color-scheme'
+import { site } from '~/setting'
+
+const pathGenealogy = Astro.url.pathname
+  .split('/')
+  .filter(Boolean)
+  .reduce((acc, val) => [...acc, `${acc.at(-1)}${val}/`], ['/'])
+
+const title = Astro.props.title || (function () {
+  let target
+  pathGenealogy.findLast((currentPath) => {
+    target = site.navigation.find(({ path }) => path === currentPath)
+    return target
+  })
+  return target?.title
+}())
+
+const {
+  description,
+  openGraph,
+  extend,
+} = Astro.props
+---
+
+<SEO
+  title={title ? `${title} | ${site.title}` : site.title}
+  description={description || site.description}
+  charset="utf-8"
+  openGraph={openGraph || null}
+  extend={extend || null}
+/>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum=1.0, user-scalable=no" />
+
+<ThemeSwitch />
