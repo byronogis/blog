@@ -7,10 +7,10 @@ const { class: className } = Astro.props
 ---
 
 <aside class:list={[
-  'fixed z-100 left-0 top-0 bottom-0 h-full overflow-auto overscroll-contain',
+  'fixed z-100 left-0 top-0 bottom-0 h-100dvh overflow-auto overscroll-contain',
   'lt-md:(w-60vw translate-x--100% transition-all bg-strong shadow-md)',
-  'md:(w-80px bg-secondary)',
-  'xl:(w-18vw)',
+  'md:(w-80px sticky bg-secondary)',
+  'xl:(w-20%)',
   'component_site-side',
   className,
 ]}>
@@ -35,9 +35,8 @@ const { class: className } = Astro.props
     </li>
   </ul>
 
-  <a href={getPath('about')} class:list={[
-    'hidden',
-    'md:(block absolute bottom-4 left-0 right-0 m-auto w-8)',
-    'xl:(w-30%)',
-  ]}><img src={site.avatar} alt="avatar" class="w-full rounded-10%"></a>
+  {site.avatar && <a href={getPath('about')} class:list={[
+    'block absolute bottom-4 left-0 right-0 m-auto w-30%',
+    'md:(w-8) xl:(w-30%)',
+  ]}><img src={site.avatar} alt="avatar" class="w-full rounded-10%" /></a>}
 </aside>

@@ -8,9 +8,17 @@ const { class: className } = Astro.props
   className,
   'component_control-side',
   'fixed z-1000 bottom-8 right-8 grid grid-cols-1 gap-y-2 text-10 w-10',
-  'lt-md:(box-content p-2 bg-secondary rounded-2 shadow-md)',
+  'lt-md:(box-content p-2 bg-primary rounded-10 site-shadow-20)',
   '[&>*]:(h-10 overflow-hidden)',
 ]}>
+  <!-- back to top -->
+  <button class:list={[
+    'i-ic:baseline-vertical-align-top',
+    'component_control-side_back-to-top__button',
+    'site-opacity',
+    'md:(hover:opacity-100)',
+  ]}/>
+
   <!-- toc -->
   <button class:list={[
     site.iconMap.toc,
@@ -46,6 +54,8 @@ const { class: className } = Astro.props
       if(!siteSide) return
       postToc?.classList.remove('!translate-none')
       siteSide.classList.toggle('!translate-none')
+    } else if (target?.classList.contains('component_control-side_back-to-top__button')) { // back to top
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } else {
       return
     }

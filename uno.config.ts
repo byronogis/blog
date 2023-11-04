@@ -16,7 +16,7 @@ export default defineConfig({
     presetTypography({
       selectorName: 'markdown',
       cssExtend: {
-        'p>code': {
+        '*>code': {
           'white-space': 'break-spaces',
           'word-break': 'break-all',
         },
@@ -39,9 +39,15 @@ export default defineConfig({
     transformerVariantGroup(),
     transformerDirectives(),
   ],
+  rules: [
+    [/^site-shadow-(\d+)$/, ([, d]) => ({ 'box-shadow': `0 0 4px 0 rgba(0, 0, 0, ${Number(d) / 100})` })],
+  ],
   shortcuts: {
     'flex-center': 'flex items-center justify-center',
     'site-opacity': 'opacity-60',
+    'site-title': 'text-3xl font-bold text-center py-4',
+    'site-section-title': 'text-xl font-bold text-center py-4',
+    'site-list': 'grid grid-cols-1 auto-rows-min gap-4 lg:(grid-cols-2 gap-8)',
   },
   theme: {
     breakpoints: {
