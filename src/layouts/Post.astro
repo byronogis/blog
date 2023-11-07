@@ -92,22 +92,38 @@ const postEntries = (await getCollection('blog'))
       </slot>
     </article>
 
-    <aside class:list={[
+    <aside site-mask class:list={[
       'flex-1',
-      'overflow-auto overscroll-contain p-4 bg-primary',
-      'lt-sm:(w-[min(90%,calc(1440px*0.65))])',
-      'sm:(!left-[calc(80px)])',
-      'lt-md:(fixed z-10 left-0 right-0 top-8 h-60lvh w-[calc(calc(100%-80px)*0.9)] m-auto leading-8 translate-x--100vw transition-all site-shadow-60 rounded-lg)',
-      'md:(sticky top-0 h-100dvh max-h-100dvh  text-text:70)',
+      'lt-md:(site-mask leading-8 hidden)',
+      'md:(sticky top-0 h-100dvh text-text:70)',
       'layout_post__toc',
     ]}>
-      <PostTOC
-        range={[2, 4]}
-        number={true}
-        line={true}
-        key="post-aside"
-        headings={headings.map(heading => ({ ...heading, title: heading.text, url: `#${heading.slug}` }))}
-      />
+      <div
+        class:list={[
+          'lt-md:(site-mask__content)',
+          'md:(h-full)',
+        ]}
+      >
+        <div
+          class:list={[
+            'h-full overflow-auto overscroll-contain p-4',
+          ]}
+        >
+          <PostTOC
+            range={[2, 4]}
+            number={true}
+            line={true}
+            key="post-aside"
+            headings={headings.map(heading => ({ ...heading, title: heading.text, url: `#${heading.slug}` }))}
+          />
+        </div>
+        <button
+          class:list={[
+            'site-mask__close',
+            'md:(hidden)',
+          ]}
+        >Close</button>
+      </div>
     </aside>
 
   </div>
@@ -115,22 +131,20 @@ const postEntries = (await getCollection('blog'))
 
 <script>
   const toc = document.querySelector('.layout_post__toc')
-  toc?.addEventListener('click', (event) => {
-    if (window.innerWidth < 1024 || event.target?.tagName === 'A') {
-      toc.classList.remove('!translate-none')
-    }
-
+  toc?.addEventListener('click', (event: HTMLElementEvent<HTMLElement>) => {
     if (
       event.target
       && event.target instanceof HTMLAnchorElement
       && event.target.hash.startsWith('#')
     ) {
+      toc.classList.remove('!block')
+
       event.preventDefault()
       // do something
       try {
         // 解码这一步会有失败的可能, 这里使用 try catch 进行捕获
         const hash = decodeURIComponent(event.target.hash)
-        const target = document.querySelector(hash)
+        const target = document.querySelector(hash) as HTMLElement
         window.scrollTo({
           top: target?.offsetTop - 20,
           behavior: 'smooth',
