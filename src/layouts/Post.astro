@@ -104,19 +104,13 @@ const postEntries = (await getCollection('blog'))
           'md:(h-full)',
         ]}
       >
-        <div
-          class:list={[
-            'h-full overflow-auto overscroll-contain p-4',
-          ]}
-        >
-          <PostTOC
-            range={[2, 4]}
-            number={true}
-            line={true}
-            key="post-aside"
-            headings={headings.map(heading => ({ ...heading, title: heading.text, url: `#${heading.slug}` }))}
-          />
-        </div>
+        <PostTOC
+          range={[2, 4]}
+          number={true}
+          line={true}
+          isWrapper={true}
+          headings={headings.map(heading => ({ ...heading, title: heading.text, url: `#${heading.slug}` }))}
+        />
         <button
           class:list={[
             'site-mask__close',
@@ -130,8 +124,8 @@ const postEntries = (await getCollection('blog'))
 </DefaultLayout>
 
 <script>
-  const toc = document.querySelector('.layout_post__toc')
-  toc?.addEventListener('click', (event: HTMLElementEvent<HTMLElement>) => {
+  const toc = document.querySelector('.component_post-toc') as HTMLElement
+  toc.addEventListener('click', (event: HTMLElementEvent<HTMLElement>) => {
     if (
       event.target
       && event.target instanceof HTMLAnchorElement
@@ -145,9 +139,21 @@ const postEntries = (await getCollection('blog'))
         // 解码这一步会有失败的可能, 这里使用 try catch 进行捕获
         const hash = decodeURIComponent(event.target.hash)
         const target = document.querySelector(hash) as HTMLElement
-        window.scrollTo({
-          top: target?.offsetTop - 20,
-          behavior: 'smooth',
+        Promise.resolve().then(() => {
+          toc.classList.add('no-active')
+          tocItemsMap.forEach(item => item.classList.remove('active'))
+          ;(event.target.parentElement as HTMLElement).classList.add('active')
+
+          const scrollEndHandler = () => {
+            toc.classList.remove('no-active')
+            window.removeEventListener('scrollend', scrollEndHandler)
+          }
+          window.addEventListener('scrollend', scrollEndHandler)
+
+          window.scrollTo({
+            top: target?.offsetTop - 20,
+            behavior: 'smooth',
+          })
         })
         history.pushState(null, '', event.target.hash)
       }
@@ -156,4 +162,34 @@ const postEntries = (await getCollection('blog'))
       }
     }
   })
+
+  const tocItems = document.querySelectorAll(`.component_post-toc summary`);
+  const tocItemsMap = new Map();
+
+  const observer = new IntersectionObserver(entries => {
+    if (toc.classList.contains('no-active')) return
+
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocItemsMap.forEach(item => item.classList.remove('active'));
+        tocItemsMap.get(entry.target).classList.add('active');
+      }
+    });
+  }, {
+    root: null,
+    threshold: 0.5,
+  });
+
+  tocItems.forEach(item => {
+    const targetId = item.querySelector('a')?.getAttribute('href')?.slice(1);
+
+    if (targetId === undefined) return
+
+    const targetElement = document.getElementById(targetId);
+
+    if (targetElement) {
+      observer.observe(targetElement);
+      tocItemsMap.set(targetElement, item);
+    }
+  });
 </script>
