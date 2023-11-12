@@ -1,7 +1,7 @@
 {
   "name": "astro-starter",
   "type": "module",
-  "version": "0.0.30",
+  "version": "0.0.32",
   "engines": {
     "node": ">=18.14.1",
     "pnpm": ">=8.6.12"
@@ -23,7 +23,8 @@
     "astro": "^3.4.3",
     "astro-i18next": "1.0.0-beta.21",
     "astro-seo": "^0.8.0",
-    "dayjs": "^1.11.10"
+    "dayjs": "^1.11.10",
+    "zx": "^7.2.3"
   },
   "devDependencies": {
     "@antfu/eslint-config": "1.0.0-beta.18",
@@ -39,7 +40,6 @@
     "eslint": "^8.53.0",
     "eslint-plugin-astro": "^0.29.1",
     "lint-staged": "^15.0.2",
-    "pagefind": "^1.0.3",
     "simple-git-hooks": "^2.9.0",
     "unocss": "^0.57.2",
     "unocss-preset-theme": "^0.11.0"
@@ -50,7 +50,7 @@
     }
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged"
+    "pre-commit": "pnpm lint-staged && npx zx ./scripts/auto-update-frontmatter.mjs"
   },
   "lint-staged": {
     "*": "eslint --fix"
