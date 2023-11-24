@@ -2,8 +2,12 @@
 title: 添加 git 信息到 Vite 生成的 HTML 中
 description: 使用 zx 在 js 中执行 git 命令并获取最新提交的 sha, 然后将 sha 写入到 Vite 生成的 HTML 中
 publishedTime: 2023-11-24
-tags: [vite,html]
-keywords: vite,html,git
+tags:
+  - vite
+  - html
+keywords: vite,html,git,zx
+modifiedTime: 2023-11-24
+
 ---
 
 # 添加 git 信息到 Vite 生成的 HTML 中
